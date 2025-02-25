@@ -13,9 +13,9 @@ contract FundMe {
 
     uint256 public constant MINIMUM_USD = 5e18;
 
-    address[] public funders;
+    address[] private s_funders;
     mapping(address funder => uint256 amountFunded)
-        public addressToAmountFunded;
+        private s_addressToAmountFunded;
 
     address public immutable i_owner;
     AggregatorV3Interface private s_priceFeed;
@@ -30,9 +30,9 @@ contract FundMe {
             msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,
             "didn't sent enough ETH"
         ); //1e18 = 1ETH = 1 * 10^18 wie
-        funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] =
-            addressToAmountFunded[msg.sender] +
+        s_funders.push(msg.sender);
+        s_addressToAmountFunded[msg.sender] =
+            s_addressToAmountFunded[msg.sender] +
             msg.value;
     }
 
@@ -46,13 +46,13 @@ contract FundMe {
         // 0,1,2,3 indexes
         for (
             uint256 funderIndex = 0;
-            funderIndex < funders.length;
+            funderIndex < s_funders.length;
             funderIndex++
         ) {
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
+            address funder = s_funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
-        funders = new address[](0); // reset the array
+        s_funders = new address[](0); // reset the array
 
         //withdraw the funds - 3 ways:
         // transfer
@@ -92,5 +92,17 @@ contract FundMe {
 
     fallback() external payable {
         fund();
+    }
+
+    /**
+     * View / Pure functions (Getters)
+     */
+
+    function getAddressToAmountFunded(address fundingAddress) external view returns (uint256) {
+        return s_addressToAmountFunded[fundingAddress];
+    }
+
+    function getFunder(uint256 index) external view returns (address) {
+        return s_funders[index];
     }
 }
