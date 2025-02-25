@@ -17,7 +17,7 @@ contract FundMe {
     mapping(address funder => uint256 amountFunded)
         private s_addressToAmountFunded;
 
-    address public immutable i_owner;
+    address private immutable i_owner;
     AggregatorV3Interface private s_priceFeed;
 
     constructor(address priceFeed) {
@@ -36,7 +36,7 @@ contract FundMe {
             msg.value;
     }
 
-    function getVersion() public view returns(uint256){
+    function getVersion() public view returns (uint256) {
         return s_priceFeed.version();
     }
 
@@ -44,9 +44,10 @@ contract FundMe {
         // for loop
         // [1,2,3,4] elements
         // 0,1,2,3 indexes
+        uint256 fundersLength = s_funders.length;
         for (
             uint256 funderIndex = 0;
-            funderIndex < s_funders.length;
+            funderIndex < fundersLength;
             funderIndex++
         ) {
             address funder = s_funders[funderIndex];
@@ -83,7 +84,7 @@ contract FundMe {
         if (msg.sender != i_owner) {
             revert NotOwner();
         }
-        _; // code after the aboce line
+        _; // code after the above line
     }
 
     receive() external payable {
@@ -98,11 +99,17 @@ contract FundMe {
      * View / Pure functions (Getters)
      */
 
-    function getAddressToAmountFunded(address fundingAddress) external view returns (uint256) {
+    function getAddressToAmountFunded(
+        address fundingAddress
+    ) external view returns (uint256) {
         return s_addressToAmountFunded[fundingAddress];
     }
 
     function getFunder(uint256 index) external view returns (address) {
         return s_funders[index];
+    }
+
+    function getOwner() external view returns (address) {
+        return i_owner;
     }
 }
