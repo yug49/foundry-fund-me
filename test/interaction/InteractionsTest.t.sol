@@ -2,12 +2,17 @@
 
 pragma solidity ^0.8.18;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test, console} from "../../lib/forge-std/src/Test.sol";
 import {FundMe} from "../../src/FundMe.sol";
 import {DeployFundMe} from "../../script/DeployFundMe.s.sol";
+import {ZkSyncChainChecker} from "../../lib/foundry-devops/src/ZkSyncChainChecker.sol";
+import {FoundryZkSyncChecker} from "../../lib/foundry-devops/src/FoundryZkSyncChecker.sol";
+import {HelperConfig, CodeConstants} from "../../script/HelperConfig.s.sol";
+import {MockV3Aggregator} from "../mocks/MockV3Aggregator.sol";
+import {StdCheats} from "../../lib/forge-std/src/StdCheats.sol";
 import {FundFundMe, WithdrawFundMe} from "../../script/Interactions.s.sol";
 
-contract InteractionsTest is Test {
+contract InteractionsTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
     FundMe fundMe;
 
     uint256 private constant START_BALANCE = 100 ether;
@@ -24,12 +29,18 @@ contract InteractionsTest is Test {
     // }
 
     function setUp() external {
-        DeployFundMe deployFundMe = new DeployFundMe();
-        fundMe = deployFundMe.run();
-        vm.deal(USER,START_BALANCE);
+        if(!isZkSyncChain()){
+            DeployFundMe deployFundMe = new DeployFundMe();
+            fundMe = deployFundMe.run();
+        }else {
+            MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
+            fundMe = new FundMe(address(mockPriceFeed));
+        }
+        
+        vm.deal(USER, START_BALANCE);
     }
 
-    function testUserCanFundInteractions() public {
+    function testUserCanFundInteractions() public skipZkSync{
         FundFundMe fundFundMe = new FundFundMe();
 
         fundFundMe.fundFundMe(address(fundMe));

@@ -14,9 +14,12 @@ docs/
 .env
 
 broadcast/
+
 lib/
 
 .DS_Store
 zkout/
 
 anvil-zksync.log/
+
+.gas-snapshot/

@@ -7,8 +7,18 @@
 
 pragma solidity ^0.8.18;
 
-import {Script} from "forge-std/Script.sol";
+import {Script} from "../lib/forge-std/src/Script.sol";
 import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
+
+abstract contract CodeConstants {
+    uint8 public constant DECIMALS = 8;
+    int256 public constant INITIAL_PRICE = 2000e8;
+
+    /* chain ids */
+    uint256 public constant ETH_SEPOLIA_CHAIN_ID = 11155111;
+    uint256 public constant ZKSYNC_SEPOLIA_CHAIN_ID = 300;
+    uint256 public constant LOCAL_CHAIN_ID = 31337;
+}
 
 contract HelperConfig is Script {
     // If we are on a local anvil, we deploy mocks
