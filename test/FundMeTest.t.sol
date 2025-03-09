@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.18;
 
-import {Test, console} from "forge-std/Test.sol";
-import {FundMe} from "../../src/FundMe.sol";
+import {Test, console} from "../lib/forge-std/src/Test.sol";
+import {FundMe} from "../src/FundMe.sol";
 import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 
 contract FundMeTest is Test {
@@ -90,7 +90,7 @@ contract FundMeTest is Test {
     function testWithdrawFromMultipleFunders() public funded {
         //Arrange
         uint160 numberOfFunders = 10;
-        uint160 startingFunderIndex = 2;
+        uint160 startingFunderIndex = 0;
         //generating address with number, then it should be of type int160
 
         for (uint160 i = startingFunderIndex; i < numberOfFunders; i++) {
@@ -105,17 +105,19 @@ contract FundMeTest is Test {
         uint256 startingFundMeBalance = address(fundMe).balance;
 
         //Act
-        uint256 gasStart = gasleft();   //gasleft() tells you how much gas is left in the current transaction
-        vm.txGasPrice(GAS_PRICE);   //test will have gas price
+        // uint256 gasStart = gasleft();   //gasleft() tells you how much gas is left in the current transaction
+        // vm.txGasPrice(GAS_PRICE);   //test will have gas price
+
         vm.startPrank(fundMe.getOwner());
         fundMe.withdraw();
         vm.stopPrank();
 
-        uint256 gasEnd = gasleft();
-        uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice; //tx.gasprice is the gas price of the current transaction
+        // uint256 gasEnd = gasleft();
+        // uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice; //tx.gasprice is the gas price of the current transaction
 
         //assert
         assert(address(fundMe).balance == 0);  
         assert(fundMe.getOwner().balance == startingOwnerBalance + startingFundMeBalance);
+        assert((numberOfFunders + 1) * SEND_VALUE == fundMe.getOwner().balance - startingOwnerBalance);
     }
 }

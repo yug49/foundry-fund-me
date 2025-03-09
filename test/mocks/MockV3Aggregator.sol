@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV2V3Interface.sol";
+import {AggregatorV3Interface} from "../../lib/chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 /**
  * @title MockV3Aggregator
@@ -11,19 +11,19 @@ import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV2V3Interface.
  * aggregator contract, but how the aggregator got
  * its answer is unimportant
  */
-contract MockV3Aggregator is AggregatorV2V3Interface {
+contract MockV3Aggregator is AggregatorV3Interface {
     uint256 public constant override version = 6;
 
-    uint8 public override decimals;
-    int256 public override latestAnswer;
-    uint256 public override latestTimestamp;
-    uint256 public override latestRound;
+    uint8 public decimals;
+    int256 public latestAnswer;
+    uint256 public latestTimestamp;
+    uint256 public latestRound;
 
-    mapping(uint256 => int256) public override getAnswer;
-    mapping(uint256 => uint256) public override getTimestamp;
+    mapping(uint256 => int256) public getAnswer;
+    mapping(uint256 => uint256) public getTimestamp;
     mapping(uint256 => uint256) private getStartedAt;
 
-    constructor(uint8 _decimals, int256 _initialAnswer) public {
+    constructor(uint8 _decimals, int256 _initialAnswer) {
         decimals = _decimals;
         updateAnswer(_initialAnswer);
     }
@@ -95,7 +95,7 @@ contract MockV3Aggregator is AggregatorV2V3Interface {
         );
     }
 
-    function description() external view override returns (string memory) {
+    function description() external pure override returns (string memory) {
         return "v0.6/tests/MockV3Aggregator.sol";
     }
 }
