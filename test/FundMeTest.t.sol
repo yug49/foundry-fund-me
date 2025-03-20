@@ -11,8 +11,7 @@ import {HelperConfig, CodeConstants} from "../script/HelperConfig.s.sol";
 import {MockV3Aggregator} from "./mocks/MockV3Aggregator.sol";
 import {StdCheats} from "../lib/forge-std/src/StdCheats.sol";
 
-
-contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test  {
+contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
     FundMe fundMe;
 
     uint256 private constant START_BALANCE = 100 ether;
@@ -29,55 +28,64 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test  {
     }
 
     function setUp() external {
-        if(!isZkSyncChain()){
+        if (!isZkSyncChain()) {
             DeployFundMe deployFundMe = new DeployFundMe();
             fundMe = deployFundMe.run();
-        }else {
+        } else {
             MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
             fundMe = new FundMe(address(mockPriceFeed));
         }
-        
+
         vm.deal(USER, START_BALANCE);
     }
 
-    function testMinimumDollarIsFive() public skipZkSync{
+    function testMinimumDollarIsFive() public skipZkSync {
         assertEq(fundMe.MINIMUM_USD(), 5e18);
     }
 
-    function testOwnerIsMsgSender() public skipZkSync{
+    function testOwnerIsMsgSender() public skipZkSync {
         // assertEq(fundMe.i_owner(), msg.sender); //failed because us-->FundMeTest-->FundMe
-        assertEq(fundMe.getOwner(), msg.sender); 
+        assertEq(fundMe.getOwner(), msg.sender);
     }
 
-    function testPriceFeedVersionIsAccurate() public skipZkSync{
+    function testPriceFeedVersionIsAccurate() public skipZkSync {
         uint256 version = fundMe.getVersion();
         console.log(version);
         assertEq(version, 6);
     }
 
-    function testFundFailsWithoutEnoughEth() public skipZkSync{
+    function testFundFailsWithoutEnoughEth() public skipZkSync {
         vm.expectRevert(); // the next line, should revert!
         // assert(This tx fails/reverts)
         fundMe.fund();
     }
 
-    function testFundUpdatesFundedDataStructure() public funded skipZkSync{
+    function testFundUpdatesFundedDataStructure() public funded skipZkSync {
         uint256 amountFunded = fundMe.getAddressToAmountFunded(USER);
         assertEq(amountFunded, SEND_VALUE);
     }
 
-    function testAddsFunderToArrayOfFunders() public funded skipZkSync{
+    function testAddsFunderToArrayOfFunders() public funded skipZkSync {
         address funder = fundMe.getFunder(0);
         assertEq(funder, USER);
     }
 
-    function testOnlyOwnerCanWithdraw() public funded skipZkSync{
+    function testPrintStorageData() public view{
+        for (uint256 i = 0; i < 3; i++) {
+            bytes32 value = vm.load(address(fundMe), bytes32(i));
+            console.log("Value at location", i, ":");
+            console.logBytes32(value);
+        }
+        console.log("PriceFeed address:", address(fundMe.getPriceFeed()));
+    }
+
+    function testOnlyOwnerCanWithdraw() public funded skipZkSync {
         vm.prank(USER);
         vm.expectRevert();
         fundMe.withdraw();
     }
 
-    function testWithDrawWithASingleFunder() public funded skipZkSync{
+    function testWithDrawWithASingleFunder() public funded skipZkSync {
         //Arrange
 
         uint256 startingOwnerBalance = fundMe.getOwner().balance;
@@ -93,13 +101,10 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test  {
         uint256 endingFundMeBalance = address(fundMe).balance;
 
         assertEq(endingFundMeBalance, 0);
-        assertEq(
-            endingOwnerBalance,
-            startingOwnerBalance + startingFundMeBalance
-        );
+        assertEq(endingOwnerBalance, startingOwnerBalance + startingFundMeBalance);
     }
 
-    function testWithdrawFromMultipleFunders() public funded skipZkSync{
+    function testWithdrawFromMultipleFunders() public funded skipZkSync {
         //Arrange
         uint160 numberOfFunders = 10;
         uint160 startingFunderIndex = 0;
@@ -128,7 +133,7 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test  {
         // uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice; //tx.gasprice is the gas price of the current transaction
 
         //assert
-        assert(address(fundMe).balance == 0);  
+        assert(address(fundMe).balance == 0);
         assert(fundMe.getOwner().balance == startingOwnerBalance + startingFundMeBalance);
         assert((numberOfFunders + 1) * SEND_VALUE == fundMe.getOwner().balance - startingOwnerBalance);
     }
