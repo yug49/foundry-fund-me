@@ -46,7 +46,7 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test  {
 
     function testOwnerIsMsgSender() public skipZkSync{
         // assertEq(fundMe.i_owner(), msg.sender); //failed because us-->FundMeTest-->FundMe
-        assertEq(fundMe.getOwner(), msg.sender); //failed because us-->FundMeTest-->FundMe
+        assertEq(fundMe.getOwner(), msg.sender); 
     }
 
     function testPriceFeedVersionIsAccurate() public skipZkSync{

@@ -22,4 +22,6 @@ zkout/
 
 anvil-zksync.log/
 
-.gas-snapshot/
+.gitignore
+
+.gas-snapshot

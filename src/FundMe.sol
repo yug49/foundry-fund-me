@@ -25,6 +25,22 @@ contract FundMe {
         s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
+    modifier onlyOwner() {
+        // require(msg.sender == i_owner, "Sender is not i_owner!");
+        if (msg.sender != i_owner) {
+            revert NotOwner();
+        }
+        _; // code after the above line
+    }
+
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
+    }
+
     function fund() public payable {
         require(
             msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,
@@ -79,21 +95,7 @@ contract FundMe {
         require(callSuccess, "Call failed");
     }
 
-    modifier onlyOwner() {
-        // require(msg.sender == i_owner, "Sender is not i_owner!");
-        if (msg.sender != i_owner) {
-            revert NotOwner();
-        }
-        _; // code after the above line
-    }
-
-    receive() external payable {
-        fund();
-    }
-
-    fallback() external payable {
-        fund();
-    }
+    
 
     /**
      * View / Pure functions (Getters)
