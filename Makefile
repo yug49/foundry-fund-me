@@ -30,7 +30,6 @@ zk-sync-anvil :; foundryup-zksync && anvil-zksync
 
 snapshot :; forge snapshot
 
-all: clean remove install update build
 
 # Clean the repo
 clean  :; forge clean

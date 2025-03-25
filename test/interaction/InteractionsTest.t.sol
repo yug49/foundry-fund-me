@@ -29,31 +29,47 @@ contract InteractionsTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test 
     // }
 
     function setUp() external {
-        if(!isZkSyncChain()){
+        if (!isZkSyncChain()) {
             DeployFundMe deployFundMe = new DeployFundMe();
             fundMe = deployFundMe.run();
-        }else {
+        } else {
             MockV3Aggregator mockPriceFeed = new MockV3Aggregator(DECIMALS, INITIAL_PRICE);
             fundMe = new FundMe(address(mockPriceFeed));
         }
-        
+
         vm.deal(USER, START_BALANCE);
     }
 
-    function testUserCanFundInteractions() public skipZkSync{
-        FundFundMe fundFundMe = new FundFundMe();
+    function testUserCanFundAndOwnerWithdraw() public skipZkSync {
+        uint256 preUserBalance = address(USER).balance;
+        uint256 preOwnerBalance = fundMe.getOwner().balance;
 
-        fundFundMe.fundFundMe(address(fundMe));
+        vm.prank(USER);
+        fundMe.fund{value: SEND_VALUE}();
 
         WithdrawFundMe withdrawFundMe = new WithdrawFundMe();
-        withdrawFundMe.withdrawFundMe(address(fundMe));
-        
+        withdrawFundMe.run();
+
+        uint256 afterUserBalance = address(USER).balance;
+        uint256 afterOwnerBalance = fundMe.getOwner().balance;
+
         assert(address(fundMe).balance == 0);
+        assertEq(afterUserBalance + SEND_VALUE, preUserBalance);
+        assertEq(preOwnerBalance + SEND_VALUE, afterOwnerBalance);
+
+        // FundFundMe fundFundMe = new FundFundMe();
+
+        // fundFundMe.fundFundMe(address(fundMe));
+
+        // WithdrawFundMe withdrawFundMe = new WithdrawFundMe();
+        // withdrawFundMe.withdrawFundMe(address(fundMe));
+
+        // assert(address(fundMe).balance == 0);
 
         // vm.startBroadcast();
         // fundFundMe.fundFundMe(address(fundMe));
         // vm.stopBroadcast();
-        
+
         // address funder = fundMe.getFunder(0);
 
         // assert(funder == USER);

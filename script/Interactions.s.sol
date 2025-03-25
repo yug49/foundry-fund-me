@@ -14,16 +14,10 @@ import {FundMe} from "../src/FundMe.sol";
 contract FundFundMe is Script {
     uint256 constant SEND_VALUE = 0.01 ether;
 
-    
-
     function run() external {
-        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment(
-            "FundMe",
-            block.chainid
-        );
-        
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("FundMe", block.chainid);
+
         fundFundMe(mostRecentlyDeployed);
-        
     }
 
     function fundFundMe(address mostRecentlyDeployed) public {
@@ -34,18 +28,11 @@ contract FundFundMe is Script {
     }
 }
 
-
-
 contract WithdrawFundMe is Script {
-    
     function run() external {
-        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment(
-            "FundMe",
-            block.chainid
-        );
-        
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment("FundMe", block.chainid);
+
         withdrawFundMe(mostRecentlyDeployed);
-        
     }
 
     function withdrawFundMe(address mostRecentlyDeployed) public {

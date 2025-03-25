@@ -70,13 +70,13 @@ contract FundMeTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test {
         assertEq(funder, USER);
     }
 
-    function testPrintStorageData() public view{
+    function testPrintStorageData() public view {
         for (uint256 i = 0; i < 3; i++) {
             bytes32 value = vm.load(address(fundMe), bytes32(i));
-            console.log("Value at location", i, ":");
+            console.log("Value at location ", i, " is :");
             console.logBytes32(value);
         }
-        console.log("PriceFeed address:", address(fundMe.getPriceFeed()));
+        console.log("PriceFeed address : ", address(fundMe.getPriceFeed()));
     }
 
     function testOnlyOwnerCanWithdraw() public funded skipZkSync {
