@@ -15,13 +15,11 @@ docs/
 
 broadcast/
 
-lib/
 
 .DS_Store
 zkout/
 
 anvil-zksync.log/
 
-.gitignore
 
 .gas-snapshot
