@@ -48,7 +48,7 @@ contract InteractionsTest is ZkSyncChainChecker, CodeConstants, StdCheats, Test 
         fundMe.fund{value: SEND_VALUE}();
 
         WithdrawFundMe withdrawFundMe = new WithdrawFundMe();
-        withdrawFundMe.run();
+        withdrawFundMe.withdrawFundMe(address(fundMe));
 
         uint256 afterUserBalance = address(USER).balance;
         uint256 afterOwnerBalance = fundMe.getOwner().balance;
